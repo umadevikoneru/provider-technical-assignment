@@ -1,28 +1,21 @@
-# SQLite database workspace
+# SQLite database
 
-This directory is for SQLite-related deliverables for the take-home assignment.
-
-## Layout
-
-| Folder | What to put here |
+| Path | Contents |
 | --- | --- |
-| `Scripts/` | SQL scripts |
-| `Data/` | The SQLite database file |
+| `Scripts/01_schema.sql` | Tables, CHECK constraints, indexes and triggers (hard-delete guards, audit trail) |
+| `Scripts/02_views.sql` | Views used by the API and reports; they exclude soft-deleted providers and compute effective license status |
+| `Scripts/03_seed.sql` | Sample data covering every required scenario (expiration dates are relative to the build date) |
+| `Scripts/04_support_queries.sql` | Ad-hoc queries for support staff (not run by the app) |
+| `Data/providers.db` | The database built from scripts 01–03 |
 
-`.gitkeep` keeps each folder in source control while it is empty. You can remove a `.gitkeep` file after that folder contains your files.
+The API creates `Data/providers.db` from scripts 01–03 when the file does not exist. To rebuild it, stop the API, delete the file and start the API again. You can also run the scripts yourself in order with the `sqlite3` CLI:
 
-## Your design
+```bash
+sqlite3 Data/providers.db < Scripts/01_schema.sql
+sqlite3 Data/providers.db < Scripts/02_views.sql
+sqlite3 Data/providers.db < Scripts/03_seed.sql
+```
 
-You are responsible for the database schema, relationships, soft-delete implementation, and database queries. Choose the SQLite database file name and the schema yourself.
+Commit the `.db` file only after the API has stopped, so there are no `-wal`, `-shm` or `-journal` files (Git ignores those anyway).
 
-SQL scripts and database artifacts should support the requirements in the official assignment: [Take-Home Technical Assignment](../../../assignment/Take-Home_Technical_Assignment_Formatted.pdf).
-
-## Submission
-
-The final submission must include the SQLite `.db` file and any applicable SQL scripts.
-
-Commit the database file after database connections are closed, or commit a consistent backup or snapshot. Git ignores transient SQLite files (`*.db-wal`, `*.db-shm`, `*.db-journal`, and the matching `*.sqlite-*` files). Those files are not submission artifacts.
-
-## Documentation
-
-Document database setup and design decisions in the root `README.md`.
+Design decisions, including the soft-delete approach, are documented in the root [README](../../../README.md).
