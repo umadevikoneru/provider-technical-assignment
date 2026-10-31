@@ -31,13 +31,13 @@ export default function DeletedProviders() {
     <>
       <PageHeader
         title="Deleted providers"
-        description="Soft-deleted records are hidden from every standard list and report, but kept for audit and troubleshooting."
+        description="Hidden from every list and report, but kept for audit. Restore a provider to bring it back."
       />
 
       <Notice message={notice} onDismiss={dismissNotice} />
       <ErrorMessage error={actionError} />
 
-      <Card title="Soft-deleted" titleId="deleted-heading" count={providers?.length}>
+      <Card>
         <ErrorMessage error={error} onRetry={reload} />
         {loading && !providers && <SkeletonRows rows={3} />}
         {providers?.length === 0 && <EmptyState title="Nothing deleted">No providers have been deleted.</EmptyState>}

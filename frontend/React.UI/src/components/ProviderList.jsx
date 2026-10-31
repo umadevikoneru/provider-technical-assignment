@@ -1,4 +1,5 @@
 import { PROVIDER_STATUSES } from '../domain.js'
+import { pluralize } from '../utils/format.js'
 import { Card, EmptyState, ErrorMessage, SkeletonRows, StatusBadge } from './common.jsx'
 
 export default function ProviderList({ filters, onFiltersChange, result, selectedId, onSelect }) {
@@ -6,7 +7,7 @@ export default function ProviderList({ filters, onFiltersChange, result, selecte
   const isFiltered = Boolean(filters.search || filters.status)
 
   return (
-    <Card title="All providers" titleId="providers-heading" count={providers?.length}>
+    <Card>
       <div className="toolbar">
         <label className="search-field">
           <span className="visually-hidden">Search providers</span>
@@ -27,6 +28,11 @@ export default function ProviderList({ filters, onFiltersChange, result, selecte
             ))}
           </select>
         </label>
+        {providers && (
+          <span className="toolbar-count" aria-live="polite">
+            {pluralize(providers.length, 'provider')}
+          </span>
+        )}
       </div>
 
       <ErrorMessage error={error} onRetry={reload} />
@@ -76,9 +82,7 @@ export default function ProviderList({ filters, onFiltersChange, result, selecte
                   <td className="num">
                     {provider.licenseCount}
                     {provider.expiredLicenseCount > 0 && (
-                      <span className="pill pill-red" title="Expired licenses">
-                        {provider.expiredLicenseCount} expired
-                      </span>
+                      <span className="pill pill-red">· {provider.expiredLicenseCount} expired</span>
                     )}
                   </td>
                 </tr>

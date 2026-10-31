@@ -57,10 +57,10 @@ export default function ProvidersPage() {
     <>
       <PageHeader
         title="Providers"
-        description="Search, review and maintain providers. Deleted providers are hidden here and kept for audit."
+        description="Manage providers and review their licenses."
         actions={
           <button type="button" className="button-primary" onClick={() => openPanel({ mode: 'create' })}>
-            + New provider
+            New provider
           </button>
         }
       />

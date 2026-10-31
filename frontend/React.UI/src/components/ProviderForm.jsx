@@ -62,7 +62,7 @@ export default function ProviderForm({ provider, onSaved, onCancel }) {
     <Card
       title={isEdit ? 'Edit provider' : 'New provider'}
       titleId="form-heading"
-      description={isEdit ? provider.providerName : 'Licenses are managed separately and can be added later.'}
+      description={isEdit ? provider.providerName : undefined}
     >
       <form onSubmit={handleSubmit} noValidate>
         <Field label="Provider name" name="providerName" errors={fieldErrors.providerName}>

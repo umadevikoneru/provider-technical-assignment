@@ -9,7 +9,7 @@ export default function ScenarioReports() {
     <>
       <PageHeader
         title="License scenarios"
-        description="Soft-deleted providers are excluded. A license is expired once its expiration date has passed, even if its recorded status was never updated."
+        description="The two required license reports. Deleted providers are excluded."
       />
       <div className="stack">
         <ActiveLicenses />
@@ -27,7 +27,7 @@ function ActiveLicenses() {
       title="Active providers and their active licenses"
       titleId="active-heading"
       count={rows?.length}
-      description="Providers with status Active, and each license that is currently valid."
+      description="Each valid license held by a provider with status Active."
     >
       <ErrorMessage error={error} onRetry={reload} />
       {loading && !rows && <SkeletonRows rows={4} />}
@@ -71,7 +71,7 @@ function ExpiredLicenses() {
       title="Active providers with expired licenses"
       titleId="expired-heading"
       count={rows?.length}
-      description="Providers that appear active but hold at least one expired license (one row per expired license)."
+      description="Licenses past their expiration date, held by providers still marked Active."
     >
       <ErrorMessage error={error} onRetry={reload} />
       {loading && !rows && <SkeletonRows rows={3} />}

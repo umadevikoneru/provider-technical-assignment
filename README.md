@@ -481,6 +481,7 @@ component ──► useApi(loader) ──► src/api/providers.js ──► src/
 - **Component files export only components** (needed for fast refresh). Shared values live in `domain.js` (statuses, status colors) and `utils/format.js` (dates, plurals).
 - **Shared UI pieces are in `components/common.jsx`:** `PageHeader`, `Card`, `StatusBadge`, `Notice`, `ErrorMessage`, `EmptyState`, `SkeletonRows`. Use them so every screen handles loading, empty and error states the same way.
 - **Styling uses CSS variables** defined at the top of `index.css`, with a dark-mode set. Add colors there, not inline.
+- **Keep the visual language quiet.** One filled (near-black) primary button per screen; blue only for links, focus and the selected row; status as a colored dot next to plain text; hierarchy from type size and spacing rather than extra boxes, fills or colors.
 - **Run `npm run lint`** before committing; it enforces the React Hooks rules.
 
 ### Screens
@@ -489,18 +490,25 @@ component ──► useApi(loader) ──► src/api/providers.js ──► src/
 | --- | --- | --- |
 | Providers | `ProvidersPage` → `ProviderList`, `ProviderDetail`, `ProviderForm` | Search and filter providers; view licenses and change history; create, edit and delete (with a confirmation dialog) |
 | License scenarios | `ScenarioReports` | The two required scenario reports |
-| Dashboard | `Dashboard` (lazy-loaded) | Number cards, providers by status, licenses by effective status, licenses expiring soon |
+| Dashboard | `Dashboard` (lazy-loaded) | Four key figures, providers by status, licenses by effective status, upcoming renewals |
 | Deleted | `DeletedProviders` | Soft-deleted providers, with Restore |
 
 On phones, the selected provider's details appear above the list and scroll into view.
 
 ### Dashboard metrics, and why
 
+The four headline figures:
+
+- **Providers** and **Licenses:** the size of what's being managed.
 - **Active providers with expired licenses:** the compliance risk the assignment calls out.
-- **Licenses expiring within 60 days:** a renewal worklist.
-- **Licenses with an outdated recorded status:** a data-quality task for staff.
-- **Providers by status and licenses by effective status:** the overall picture.
-- **Deleted providers:** a reminder that deleted records still exist for audit.
+- **Expiring within 60 days:** the renewal worklist, listed in full under "Upcoming renewals".
+
+Below them, a single quiet line carries two secondary figures, so they stay visible without competing:
+
+- **Licenses still recorded as Active after expiring:** a data-quality task for staff.
+- **Deleted providers kept for audit:** a reminder that deleted records still exist.
+
+The charts (providers by status, licenses by effective status) give the overall picture.
 
 Every number comes from `GET /api/dashboard`, which reads the same views as the reports, so the two always agree.
 

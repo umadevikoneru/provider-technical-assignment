@@ -2,9 +2,10 @@ import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer,
 import { getDashboard } from '../api/reports.js'
 import { statusTone } from '../domain.js'
 import { useApi } from '../hooks/useApi.js'
-import { describeDays, formatDate } from '../utils/format.js'
+import { describeDays, formatDate, pluralize } from '../utils/format.js'
 import { Card, EmptyState, ErrorMessage, PageHeader, SkeletonRows } from './common.jsx'
 
+// Charts use the same status colors as the dots everywhere else (see index.css).
 const toneColor = (status) => `var(--${statusTone(status)})`
 
 const tooltipStyle = {
@@ -22,7 +23,7 @@ export default function Dashboard() {
     <>
       <PageHeader
         title="Dashboard"
-        description="Provider and license insights. Soft-deleted providers are excluded from every number except the audit count."
+        description="Key provider and license figures. Deleted providers are excluded."
       />
       <ErrorMessage error={error} onRetry={reload} />
       {loading && !data && <SkeletonRows rows={6} label="Loading dashboard" />}
@@ -36,25 +37,26 @@ function DashboardContent({ data }) {
 
   return (
     <div className="stack">
-      <div className="stats">
-        <Stat label="Providers" value={data.totalProviders} />
-        <Stat label="Licenses" value={data.totalLicenses} />
-        <Stat
-          label="Active providers with expired licenses"
-          value={data.activeProvidersWithExpiredLicenses}
-          tone={data.activeProvidersWithExpiredLicenses > 0 ? 'red' : undefined}
-        />
-        <Stat
-          label={`Licenses expiring within ${data.expiringWithinDays} days`}
-          value={data.expiringSoon.length}
-          tone={data.expiringSoon.length > 0 ? 'amber' : undefined}
-        />
-        <Stat
-          label="Licenses with outdated recorded status"
-          value={data.staleLicenseStatuses}
-          tone={data.staleLicenseStatuses > 0 ? 'amber' : undefined}
-        />
-        <Stat label="Deleted providers (audit)" value={data.deletedProviders} />
+      <div>
+        <div className="stats">
+          <Stat label="Providers" value={data.totalProviders} />
+          <Stat label="Licenses" value={data.totalLicenses} />
+          <Stat
+            label="Active providers with expired licenses"
+            value={data.activeProvidersWithExpiredLicenses}
+            tone={data.activeProvidersWithExpiredLicenses > 0 ? 'red' : undefined}
+          />
+          <Stat
+            label={`Expiring within ${data.expiringWithinDays} days`}
+            value={data.expiringSoon.length}
+            tone={data.expiringSoon.length > 0 ? 'amber' : undefined}
+          />
+        </div>
+        {/* Secondary figures stay visible without competing with the four above. */}
+        <p className="stat-note">
+          {pluralize(data.staleLicenseStatuses, 'license')} still recorded as Active after expiring ·{' '}
+          {pluralize(data.deletedProviders, 'deleted provider')} kept for audit
+        </p>
       </div>
 
       <div className="split-even">
@@ -66,9 +68,9 @@ function DashboardContent({ data }) {
                 <XAxis dataKey="status" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
                 <Tooltip cursor={{ fill: 'var(--surface-hover)' }} contentStyle={tooltipStyle} />
-                <Bar dataKey="count" name="Providers" radius={[6, 6, 0, 0]} maxBarSize={64}>
+                <Bar dataKey="count" name="Providers" radius={[4, 4, 0, 0]} maxBarSize={44}>
                   {data.providersByStatus.map((entry) => (
-                    <Cell key={entry.status} fill={toneColor(entry.status)} />
+                    <Cell key={entry.status} fill={toneColor(entry.status)} fillOpacity={0.85} />
                   ))}
                 </Bar>
               </BarChart>
@@ -84,9 +86,9 @@ function DashboardContent({ data }) {
               <div className="chart">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={licenseSlices} dataKey="count" nameKey="status" innerRadius="55%" outerRadius="85%" paddingAngle={2}>
+                    <Pie data={licenseSlices} dataKey="count" nameKey="status" innerRadius="62%" outerRadius="86%" paddingAngle={2} strokeWidth={2}>
                       {licenseSlices.map((entry) => (
-                        <Cell key={entry.status} fill={toneColor(entry.status)} stroke="var(--surface)" />
+                        <Cell key={entry.status} fill={toneColor(entry.status)} fillOpacity={0.85} stroke="var(--surface)" />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={tooltipStyle} />
@@ -107,10 +109,10 @@ function DashboardContent({ data }) {
       </div>
 
       <Card
-        title={`Licenses expiring within ${data.expiringWithinDays} days`}
+        title="Upcoming renewals"
         titleId="expiring-heading"
         count={data.expiringSoon.length}
-        description="Active licenses to renew soon, nearest first."
+        description={`Active licenses expiring within ${data.expiringWithinDays} days, nearest first.`}
       >
         {data.expiringSoon.length === 0 ? (
           <EmptyState title="Nothing expiring soon" />
@@ -144,11 +146,15 @@ function DashboardContent({ data }) {
   )
 }
 
+/** A single number. `tone` adds a small status dot when the value needs attention. */
 function Stat({ label, value, tone }) {
   return (
-    <div className={`stat${tone ? ` stat-${tone}` : ''}`}>
+    <div className="stat">
+      <div className="stat-label">
+        {tone && <span className={`stat-indicator stat-indicator-${tone}`} aria-hidden="true" />}
+        {label}
+      </div>
       <div className="stat-value">{value}</div>
-      <div className="stat-label">{label}</div>
     </div>
   )
 }

@@ -50,58 +50,75 @@ export default function ProviderDetail({ providerId, onEdit, onDeleted }) {
   }
 
   return (
-    <Card
-      title={provider.providerName}
-      titleId="detail-heading"
-      actions={
-        <>
+    <section className="card detail" aria-labelledby="detail-heading">
+      <header className="detail-header">
+        <div className="detail-heading">
+          <h2 id="detail-heading" className="detail-title">
+            {provider.providerName}
+          </h2>
+          <div className="detail-meta">
+            <StatusBadge status={provider.status} />
+            <span>{provider.county} County</span>
+            <span className="meta-separator" aria-hidden="true">
+              ·
+            </span>
+            <span>ID {provider.providerId}</span>
+          </div>
+        </div>
+        <div className="actions">
           <button type="button" onClick={() => onEdit(provider)}>
             Edit
           </button>
           <button type="button" className="button-danger" onClick={() => setConfirmingDelete(true)}>
             Delete
           </button>
-        </>
-      }
-    >
+        </div>
+      </header>
+
       <dl className="facts">
-        <div>
-          <dt>Status</dt>
-          <dd>
-            <StatusBadge status={provider.status} />
-          </dd>
-        </div>
-        <div>
-          <dt>County</dt>
-          <dd>{provider.county}</dd>
-        </div>
         <div>
           <dt>Created</dt>
           <dd>{formatDateTime(provider.createdDate)}</dd>
         </div>
         <div>
           <dt>Last updated</dt>
-          <dd>{provider.updatedDate ? `${formatDateTime(provider.updatedDate)} by ${provider.updatedBy}` : 'Never'}</dd>
+          <dd>
+            {provider.updatedDate ? (
+              <>
+                {formatDateTime(provider.updatedDate)}
+                <span className="muted"> by {provider.updatedBy}</span>
+              </>
+            ) : (
+              <span className="muted">Not changed since creation</span>
+            )}
+          </dd>
         </div>
       </dl>
 
-      <h3 className="section-title">
-        Licenses <span className="count">{provider.licenses.length}</span>
-      </h3>
-      <LicenseTable licenses={provider.licenses} />
+      <section className="detail-section" aria-labelledby="licenses-heading">
+        <div className="section-heading">
+          <h3 id="licenses-heading">
+            Licenses <span className="count">{provider.licenses.length}</span>
+          </h3>
+        </div>
+        <LicenseTable licenses={provider.licenses} />
+      </section>
 
-      <div className="section-footer">
-        <button
-          type="button"
-          className="button-link"
-          aria-expanded={showHistory}
-          onClick={() => setShowHistory((value) => !value)}
-        >
-          {showHistory ? 'Hide change history' : 'Show change history'}
-        </button>
+      <section className="detail-section" aria-labelledby="history-heading">
+        <div className="section-heading">
+          <h3 id="history-heading">Change history</h3>
+          <button
+            type="button"
+            className="button-link"
+            aria-expanded={showHistory}
+            onClick={() => setShowHistory((value) => !value)}
+          >
+            {showHistory ? 'Hide' : 'Show'}
+          </button>
+        </div>
         {/* Keyed by version so the history reloads after the provider changes. */}
         {showHistory && <AuditHistory key={provider.version} providerId={providerId} />}
-      </div>
+      </section>
 
       {confirmingDelete && (
         <ConfirmDialog
@@ -122,7 +139,7 @@ export default function ProviderDetail({ providerId, onEdit, onDeleted }) {
           </p>
         </ConfirmDialog>
       )}
-    </Card>
+    </section>
   )
 }
 
